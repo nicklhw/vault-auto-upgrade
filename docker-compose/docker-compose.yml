@@ -1,0 +1,74 @@
+version: '3.7'
+
+networks:
+  vault:
+    ipam:
+      driver: default
+      config:
+        - subnet: "10.5.0.0/16"
+
+services:
+  vault_s1:
+    image: hashicorp/vault-enterprise:1.10.9-ent
+    restart: always
+    volumes:
+      - ./vault/vault_s1:/vault/config:rw
+      - /vault/data
+      - /etc/vault/logs
+    cap_add:
+      - IPC_LOCK
+    container_name: vault_s1
+    entrypoint: "vault server -config=/vault/config"
+    environment:
+      - VAULT_LICENSE=${VAULT_LICENSE}
+    networks:
+      - vault
+
+  vault_s2:
+    image: hashicorp/vault-enterprise:1.10.9-ent
+    restart: always
+    volumes:
+      - ./vault/vault_s2:/vault/config:rw
+      - /vault/data
+      - /etc/vault/logs
+    cap_add:
+      - IPC_LOCK
+    container_name: vault_s2
+    entrypoint: "vault server -config=/vault/config"
+    environment:
+      - VAULT_LICENSE=${VAULT_LICENSE}
+    networks:
+      - vault
+
+  vault_s3:
+    image: hashicorp/vault-enterprise:1.10.9-ent
+    restart: always
+    volumes:
+      - ./vault/vault_s3:/vault/config:rw
+      - /vault/data
+      - /etc/vault/logs
+    cap_add:
+      - IPC_LOCK
+    container_name: vault_s3
+    entrypoint: "vault server -config=/vault/config"
+    environment:
+      - VAULT_LICENSE=${VAULT_LICENSE}
+    networks:
+      - vault
+
+  haproxy:
+    container_name: haproxy
+    image: haproxy:2.3
+    depends_on:
+      - vault_s1
+      - vault_s2
+      - vault_s3
+    environment:
+      - BALANCE=roundrobin
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    ports:
+      - 8200:8200
+      - 1936:1936
+    networks:
+      - vault
