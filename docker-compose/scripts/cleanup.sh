@@ -3,4 +3,4 @@
 DIR="$( cd .. && pwd )"
 
 rm -f *.json
-cd ../ && docker-compose down
+cd ../ && docker-compose down --remove-orphans

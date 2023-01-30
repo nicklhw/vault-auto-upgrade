@@ -4,13 +4,15 @@ all: clean up-detach init
 
 .PHONY: clean up up-detach init info admin
 
-up:
-	cd docker-compose \
-	  && docker-compose up
-
 up-detach:
 	cd docker-compose \
-	  && docker-compose up --detach
+	  && docker-compose --profile vault_old --profile load_balancer up --detach
+
+auto-upgrade:
+	cd docker-compose \
+	  && docker-compose --profile vault_new up --detach \
+	  && cd scripts \
+	  && ./auto-upgrade.sh
 
 init:
 	cd docker-compose/scripts \

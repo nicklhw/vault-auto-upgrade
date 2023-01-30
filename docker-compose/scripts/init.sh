@@ -40,7 +40,7 @@ sleep 5
 
 tput setaf 12 && echo "############## Vault Cluster members ##############"; tput sgr0
 export VAULT_ADDR=http://localhost:8200
-vault operator members
+vault operator raft list-peers
 
 export VAULT_TOKEN=$(cat ${VAULT_INIT_OUTPUT} | jq -r '.root_token')
 vault token lookup
@@ -54,3 +54,7 @@ tput setaf 12 && echo "############## Enable userpass auth on vault ############
 vault auth enable userpass
 
 vault write auth/userpass/users/admin password="passw0rd" policies="admin" token_ttl=10m token_max_ttl=60m
+
+tput setaf 12 && echo "############## Vault Auto-pilot upgrade status ##############"; tput sgr0
+
+vault operator raft autopilot state -format=json | jq -r ".Upgrade"
