@@ -2,6 +2,8 @@
 
 # Run
 ```shell
+export VAULT_LICENSE=$(cat ~/Downloads/vault.hclic)
+
 # Stand up 3 nodes cluster (v1.11) with HA proxy load balancer
 make all
 
